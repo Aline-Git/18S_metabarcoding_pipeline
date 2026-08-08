@@ -84,7 +84,7 @@ This pipeline was used with the PR2 database.
 
 #### Use the pipeline with another database
 
-To use the pipeline with another database, the script can be adapted. The easiest is to replace the names of the .fasta and .tax files with another database files in `18S_metabarcoding_pipeline/18S_metabarcoding_clustering_WP2_article.sh` lines 133 and 155 and in `18S_metabarcoding_pipeline/18S_metabarcoding_pipeline_WP2_article.sh` line 235.
+To use the pipeline with another database, the script can be adapted. The easiest is to replace the names of the .fasta and .tax files with another database files in `18S_metabarcoding_pipeline/18S_metabarcoding_clustering_WP2_article.sh` lines 129 and 151 and in `18S_metabarcoding_pipeline/18S_metabarcoding_pipeline_WP2_article.sh` line 233.
 
 ### Primers
 
