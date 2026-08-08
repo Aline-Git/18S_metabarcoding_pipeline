@@ -19,7 +19,7 @@ WORKDIR=$1
 CLUSTERING_DIR=$2 
 
 # path to the database folder (containing the PR2 fasta and tax files)
-DATABASE_FOLDER=$3
+DATABASE_DIR=$3
 
 
 ######################################## PIPELINE  ###############################################
@@ -40,7 +40,7 @@ mkdir $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_si
 
 # sort all the sequences by quality, remove sequences with quality lower than 10
 # Biopython v1.85
-18S_metabarcoding_pipeline/sort_reads_by_quality.py \
+./18S_metabarcoding_pipeline/scripts/sort_reads_by_quality.py \
     -i $WORKDIR/clustering/input_sequences/grouped_18S_selection.fastq \
     -q 10
 
@@ -74,7 +74,7 @@ vsearch --cluster_smallmem \
 
 # select clusters containing at least 5 sequences 
 # Biopython v1.85
-~/scripts/make_cluster_files.py \
+./18S_metabarcoding_pipeline/scripts/make_cluster_files.py \
   -c $WORKDIR/$CLUSTERING_DIR/vsearch_clusters_id_grouped_98_filtered_qualsorted_min1000.uc \
   -f $WORKDIR/$CLUSTERING_DIR/grouped_qualsorted_filter_1000.fastq \
   -o $WORKDIR/$CLUSTERING_DIR/clusters \
@@ -130,7 +130,7 @@ conda deactivate
 conda activate vsearch_env
 vsearch \
   --usearch_global $WORKDIR/clustering_bioinfo3/polishing/centroids_consensus.fasta \
-  -db $DATABASE_FOLDER/pr2_version_5.1.0_SSU_mothur.fasta \
+  -db $DATABASE_DIR/pr2_version_5.1.0_SSU_mothur.fasta \
   --id 0.1 \
   -query_cov 0.9 \
   --strand both \
@@ -141,7 +141,7 @@ conda deactivate
 
 
 # select the best match in case of both direction producing a match
-18S_metabarcoding_pipeline/select_best_strand_in_usearch_output.py \
+./18S_metabarcoding_pipeline/scripts/select_best_strand_in_usearch_output.py \
   -i $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_both_strand.txt \
   -o $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
 
@@ -149,11 +149,11 @@ conda deactivate
 
 # make a taxonomic table from the output clustering file (.uc) and vsearch usearch_global output of the polished centroids.
 # Biopython v1.85
-18S_metabarcoding_pipeline/make_grouped_taxonomic_table_from_usearch_output.py \
+./18S_metabarcoding_pipeline/scripts/make_grouped_taxonomic_table_from_usearch_output.py \
   -c $WORKDIR/clustering_bioinfo3/vsearch_clusters_id_grouped_98_filtered_qualsorted_min1000.uc \
   -o $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5 \
   -s 5 \
-  -t ~/reference/database/PR2_db/pr2_version_5.1.0_SSU_mothur.tax \
+  -t $DATABASE_DIR/pr2_version_5.1.0_SSU_mothur.tax \
   -b $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
 
 echo "**** END OF THE PIPELINE ****"
