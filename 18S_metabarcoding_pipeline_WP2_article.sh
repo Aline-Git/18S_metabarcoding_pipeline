@@ -5,7 +5,6 @@ regions, if any, for individual taxonomic assignment with PR2. The selected sequ
 are concatenated in a single output file for further clustering with the script 
 18S_metabarcoding_clustering_WP2_article.'''
 
-
 # usage : <path_to_script_directory>/18S_metabarcoding_pipeline_WP2_article.sh <path_to_workdir> <path_to_primer_file> <path_to_database_dir>
 # built : 2025.01.16
 
@@ -215,7 +214,6 @@ cat $SELECTED_FASTQ >> $WORKDIR/$CLUSTERING_DIR/input_sequences/grouped_18S_sele
 
 
 #_____________________4. individual taxonomic assignment______________________#
-
 
 mkdir $WORKDIR/usearch_18S_selection_pr2v51/${barcode}
 
