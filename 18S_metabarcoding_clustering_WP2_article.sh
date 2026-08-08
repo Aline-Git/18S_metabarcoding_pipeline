@@ -5,10 +5,8 @@
 sequences in decreasing order of quality. A consensus sequence is created for each cluster larger
 than five and compared with PR2 for taxonomic assignment.'''
 
-
 # usage : <path_to_script_directory>/18S_metabarcoding_clustering_WP2_article.sh <barcode_name> <path_to_workdir> <path_to_primer_file> <path_to_database_dir>
 # built : 2025.01.16
-
 
 ########################################## INPUT #################################################
 
@@ -21,7 +19,6 @@ CLUSTERING_DIR=$2
 # path to the database folder (containing the PR2 fasta and tax files)
 DATABASE_DIR=$3
 
-
 ######################################## PIPELINE  ###############################################
 
 
@@ -33,7 +30,7 @@ mkdir $WORKDIR/$CLUSTERING_DIR/clusters
 mkdir $WORKDIR/$CLUSTERING_DIR/polishing
 mkdir $WORKDIR/$CLUSTERING_DIR/polishing/polished_centroids
 mkdir $WORKDIR/$CLUSTERING_DIR/polishing/logs
-mkdir $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5
+mkdir $WORKDIR/$CLUSTERING_DIR/usearch_global_cov90_entroids_18S_clusters_size5
 
 
 #_____________________1. INPUT SEQUENCES QUALITY SORTING ______________________#
@@ -41,11 +38,11 @@ mkdir $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_si
 # sort all the sequences by quality, remove sequences with quality lower than 10
 # Biopython v1.85
 ./18S_metabarcoding_pipeline/scripts/sort_reads_by_quality.py \
-    -i $WORKDIR/clustering/input_sequences/grouped_18S_selection.fastq \
+    -i $WORKDIR/$CLUSTERING_DIR/input_sequences/grouped_18S_selection.fastq \
     -q 10
 
 # remove or gzip the original file
-gzip $WORKDIR/clustering/input_sequences/grouped_18S_selection.fastq
+gzip $WORKDIR/$CLUSTERING_DIR/input_sequences/grouped_18S_selection.fastq
 
 
 #_________________________________2. CLUSTERING ______________________________#
@@ -111,11 +108,11 @@ sed -i 's/:/_/g' $centroid
 medaka_consensus -t 2 \
    -i ${CLUSTER_ID}.fasta \
    -d $centroid \
-   -o $WORKDIR/clustering/polishing/polished_centroids/${CLUSTER_ID} \
-   > $WORKDIR/clustering/polishing/logs/medaka_${CLUSTER_ID}_polishing.log
+   -o $WORKDIR/$CLUSTERING_DIR/polishing/polished_centroids/${CLUSTER_ID} \
+   > $WORKDIR/$CLUSTERING_DIR/polishing/logs/medaka_${CLUSTER_ID}_polishing.log
 
  # put the polished sequence in an input file
-cat $WORKDIR/clustering/polishing/polished_centroids/${CLUSTER_ID}/consensus.fasta >> $WORKDIR/clustering/polishing/centroids_consensus.fasta 
+cat $WORKDIR/$CLUSTERING_DIR/polishing/polished_centroids/${CLUSTER_ID}/consensus.fasta >> $WORKDIR/clustering/polishing/centroids_consensus.fasta 
 
 done
 
@@ -124,17 +121,16 @@ conda deactivate
 
 #_______________4. TAXONOMIC ASSIGNMENT OF CONSENSUS SEQUENCES ________________#
 
-
 # taxonomic assignment with vsearch usearch_global minimum coverage of query sequence 90%, the two strand directions are compared with PR2
 # VSEARCH v2.29.4
 conda activate vsearch_env
 vsearch \
-  --usearch_global $WORKDIR/clustering_bioinfo3/polishing/centroids_consensus.fasta \
+  --usearch_global $WORKDIR/$CLUSTERING_DIR/polishing/centroids_consensus.fasta \
   -db $DATABASE_DIR/pr2_version_5.1.0_SSU_mothur.fasta \
   --id 0.1 \
   -query_cov 0.9 \
   --strand both \
-  --blast6out $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_both_strand.txt \
+  --blast6out $WORKDIR/$CLUSTERING_DIR/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_both_strand.txt \
   --output_no_hits
  
 conda deactivate
@@ -142,18 +138,18 @@ conda deactivate
 
 # select the best match in case of both direction producing a match
 ./18S_metabarcoding_pipeline/scripts/select_best_strand_in_usearch_output.py \
-  -i $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_both_strand.txt \
-  -o $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
+  -i $WORKDIR/$CLUSTERING_DIR/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_both_strand.txt \
+  -o $WORKDIR/$CLUSTERING_DIR/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
 
 
 # make a taxonomic table from the output clustering file (.uc) and vsearch usearch_global output of the polished centroids.
 # Biopython v1.85
 ./18S_metabarcoding_pipeline/scripts/make_grouped_taxonomic_table_from_usearch_output.py \
-  -c $WORKDIR/clustering_bioinfo3/vsearch_clusters_id_grouped_98_filtered_qualsorted_min1000.uc \
-  -o $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5 \
+  -c $WORKDIR/$CLUSTERING_DIR/vsearch_clusters_id_grouped_98_filtered_qualsorted_min1000.uc \
+  -o $WORKDIR/$CLUSTERING_DIR/usearch_global_cov90_entroids_18S_clusters_size5 \
   -s 5 \
   -t $DATABASE_DIR/pr2_version_5.1.0_SSU_mothur.tax \
-  -b $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
+  -b $WORKDIR/$CLUSTERING_DIR/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
 
 echo "**** END OF THE PIPELINE ****"
 
