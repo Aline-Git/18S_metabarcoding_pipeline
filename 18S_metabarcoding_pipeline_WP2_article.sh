@@ -14,7 +14,7 @@ are concatenated in a single output file for further clustering with the script
 barcode=$1
 WORKDIR=$2
 PRIMER_FILE=$3
-DATABASE_FOLDER=$4
+DATABASE_DIR=$4
 
 ######################################## PIPELINE  ###############################################
 
@@ -86,7 +86,7 @@ do
 
   # search for matches with a minimum percentage id of 90% 
   # only the matches with at least 85% length are kept in the sumary table
-  18S_metabarcoding_pipeline/blast_get_primer_table/main.py \
+  ./18S_metabarcoding_pipeline/scripts/blast_get_primer_table/main.py \
     -i $RAW_FASTA \
     -f $PRIMER_FILE \
     -p 90 \
@@ -202,7 +202,7 @@ mkdir $WORKDIR/barrnap/${barcode}/input_18S_file_with_barcodeID
 
 # Biopython v1.85
 # select and trim 18S rRNA sequences
-18S_metabarcoding_pipeline/extract_18S_sequences_with_barcodeID/main_biopython.py \
+./18S_metabarcoding_pipeline/scripts/extract_18S_sequences_with_barcodeID/main_biopython.py \
     -f $WORKDIR/adapter_cut/${barcode}/input_cut_file/${barcode}_pass_all_cutadapt_final.fastq \
     -b $WORKDIR/barrnap/${barcode}/ \
     -o $WORKDIR/barrnap/${barcode}/input_18S_file_with_barcodeID/${barcode}_18S_selection.fastq \
@@ -220,7 +220,7 @@ cat $SELECTED_FASTQ >> $WORKDIR/$CLUSTERING_DIR/input_sequences/grouped_18S_sele
 mkdir $WORKDIR/usearch_18S_selection_pr2v51/${barcode}
 
 # we select the sequences that are at least 1000bp 
-./18S_metabarcoding_pipeline/select_seq_by_size.py \
+./18S_metabarcoding_pipeline/scripts/select_seq_by_size.py \
   -f $WORKDIR/barrnap/${barcode}/input_18S_file_with_barcodeID/${barcode}_18S_selection.fasta \
   -t fasta -l 1000 \
   -o $WORKDIR/barrnap/${barcode}/input_18S_file_with_barcodeID/${barcode}_18S_selection_min1000.fasta
@@ -242,7 +242,7 @@ conda deactivate
 
 
 # usearch_global compare the strands in two directions. Now we select the best (ie the correct) one.
-./18S_metabarcoding_pipeline/select_best_strand_in_usearch_output.py \
+./18S_metabarcoding_pipeline/scripts/select_best_strand_in_usearch_output.py \
   -i $WORKDIR/usearch_18S_selection_pr2v51/${barcode}/${barcode}_usearch_output_query_cov_90_strand_both.txt \
   -o $WORKDIR/usearch_18S_selection_pr2v51/${barcode}/${barcode}_usearch_output_query_cov_90_best_strand.txt
  
