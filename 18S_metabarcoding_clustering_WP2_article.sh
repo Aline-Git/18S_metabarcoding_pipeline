@@ -146,7 +146,6 @@ conda deactivate
   -o $WORKDIR/clustering_bioinfo3/usearch_global_cov90_entroids_18S_clusters_size5/usearch_output_query_cov_90_best_strand.txt
 
 
-
 # make a taxonomic table from the output clustering file (.uc) and vsearch usearch_global output of the polished centroids.
 # Biopython v1.85
 ./18S_metabarcoding_pipeline/scripts/make_grouped_taxonomic_table_from_usearch_output.py \
